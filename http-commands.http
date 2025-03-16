@@ -1,0 +1,141 @@
+# Simple health check
+GET http://localhost:8080/actuator/health HTTP/1.1
+###
+
+
+# Invalid Authentication
+POST http://localhost:8080/api/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "invalidUser",
+  "password": "password"
+}
+###
+
+# Get JWT Refresh and Authorization tokens
+POST http://localhost:8080/api/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "password"
+}
+###
+
+
+# verify invalid token eligibility
+POST http://localhost:8080/api/eligibility/verify HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "token": "any-random-invalid-token"
+}
+###
+
+# verify expired JWT token
+POST http://localhost:8080/api/eligibility/verify HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6MTc0MjA4MjY5OCwiaWF0IjoxNzQyMDgxNzk4LCJqdGkiOiJlNTBlNmJmMC0zNWJkLTQ4NDAtYTA5Ni0yYjAyMmFmZjcyODMiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.SvRjCwtHZ2SVLco4o8DR59qUDXQKZSbwcrpCjeXTDhJxuKEgdBBbtFVjSGqDBl17IUr-cB9-oeDFXu3qKBt_Hw"
+}
+###
+
+# verify valid token eligibility
+POST http://localhost:8080/api/eligibility/verify HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6MjYwNjA4MzQwMSwiaWF0IjoxNzQyMDgzNDAxLCJqdGkiOiIyOTQ1MzE5ZS0wZjI0LTRkNDUtOTkxNC0wZjQ4YjZkNGJjY2UiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.x6G0xBP4c2vdkq15mdqTBVdsDhgub-WtdeUTK00ZCkewxG55BZxu9QJpIP5GaqYI5jMXrBQKjZCTJge3BCdKAw"
+}
+###
+
+
+# 400: bad request - validation failure for data to fetch members. More tests are done as part of integration tests
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "employeeCode": "code",
+  "employeeId": "validId",
+  "memberStatus": "admin",
+  "employeeDateOfBirth": "1995-01-01",
+  "employeeFirstName": "John",
+  "employeeLastName": "12Smith"
+}
+###
+
+# 404: not found - no record found with given data
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "employeeCode": "code",
+  "employeeId": "validId",
+  "memberStatus": "employee",
+  "employeeDateOfBirth": "1995-01-01",
+  "employeeFirstName": "John",
+  "employeeLastName": "Smith"
+}
+###
+
+# 403: forbidden - employee code mistmatch
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "employeeCode": "wrongCode",
+  "employeeId": "EMP001",
+  "memberStatus": "employee",
+  "employeeDateOfBirth": "1980-01-15",
+  "employeeFirstName": "John",
+  "employeeLastName": "Doe"
+}
+###
+
+# 200: ok - find an employee
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "employeeCode": "GROUP1",
+  "employeeId": "EMP001",
+  "memberStatus": "employee",
+  "employeeDateOfBirth": "1980-01-15",
+  "employeeFirstName": "John",
+  "employeeLastName": "Doe"
+}
+###
+
+# 200: ok - find e dependant
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaXNzIjoic3ByaW5nLWJvb3QtYXNzaWdubWVudCIsImV4cCI6Mjc0MjA4NDAyNiwiaWF0IjoxNzQyMDg0MDM0LCJqdGkiOiIzYjQ5NjY1ZS0zNWQ1LTQ1NmItYTIyNC1lNzI1NmZhYzkyN2IiLCJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwicm9sZXMiOlsiUk9MRV9BUElfVVNFUiJdfQ.6NtyRr70kNslaLbfutQ93ywNPNxABfleKxWwzLip9Zjsxo1OB4MdtPPg1xmF0pdI32ZDjq1xL9mYpeRQge5k0g
+
+{
+  "employeeCode": "GROUP2",
+  "employeeId": "DEP001",
+  "memberStatus": "dependent",
+  "employeeDateOfBirth": "2010-05-20"
+}
+###
+
+# 403 Forbdden withhout authorization
+POST http://localhost:8080/api/members/search HTTP/1.1
+Content-Type: application/json
+
+{
+  "employeeCode": "GROUP2",
+  "employeeId": "DEP001",
+  "memberStatus": "dependent",
+  "employeeDateOfBirth": "2010-05-20"
+}
+###

@@ -1,0 +1,137 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'nu.studer.jooq' version '8.0'
+    id 'org.flywaydb.flyway' version '9.16.0'
+    id 'com.avast.gradle.docker-compose' version '0.17.6'
+}
+
+group = 'assignment'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    jjwtVersion = '0.12.6'
+}
+
+bootJar {
+    archiveFileName = 'app.jar'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.hibernate.validator:hibernate-validator'
+
+    implementation 'com.bucket4j:bucket4j-core:8.7.0'
+
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    implementation "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    implementation "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    compileOnly("io.soabase.record-builder:record-builder-core:44")
+    annotationProcessor("io.soabase.record-builder:record-builder-processor:44")
+
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    jooqGenerator 'org.postgresql:postgresql:42.7.4'
+
+    testImplementation 'io.rest-assured:rest-assured:5.5.1'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+def postgresHost = gradle.startParameter.taskNames.any { it.toLowerCase().contains("test") } ? "localhost" : "postgres"
+
+flyway {
+    url = "jdbc:postgresql://${postgresHost}:5432/spring-boot-assignment"
+    user = 'user'
+    password = 'password'
+    schemas = ['public']
+}
+
+jooq {
+    configurations {
+        main {
+            generationTool {
+                logging = 'WARN'
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = "jdbc:postgresql://${postgresHost}:5432/spring-boot-assignment"
+                    user = 'user'
+                    password = 'password'
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                        forcedTypes {
+                            forcedType {
+                                name = 'varchar'
+                                includeExpression = '.*'
+                                includeTypes = 'JSONB?'
+                            }
+                            forcedType {
+                                name = 'varchar'
+                                includeExpression = '.*'
+                                includeTypes = 'INET'
+                            }
+                        }
+                    }
+                    generate {
+                        deprecated = false
+                        records = true
+                        immutablePojos = true
+                        fluentSetters = true
+                    }
+                    target {
+                        packageName = 'assignment.generated'
+                    }
+                    strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated-src/jooq/main/java"
+        }
+    }
+}
+
+dockerCompose {
+    useComposeFiles = ['docker-compose.yml']
+    startedServices = ['postgres']
+    waitForHealthyStateTimeout = Duration.ofSeconds(5)
+    downAdditionalArgs = ['-v']
+}
+
+tasks.named('generateJooq') {
+    dependsOn tasks.named('flywayMigrate')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dockerCompose.isRequiredBy(flywayMigrate)
+dockerCompose.isRequiredBy(test)

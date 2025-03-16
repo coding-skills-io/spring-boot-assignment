@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: spring-boot-assignment
+  datasource:
+    url: jdbc:postgresql://postgres:5432/spring-boot-assignment
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jooq:
+    sql-dialect: POSTGRES
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+jwt:
+  expiration: 900000
+  refresh-expiration: 604800000
+  secret: jwt-secret-should-be-stored-securely-in-aws-secrets-manager-or-parameter-store
+server:
+  error:
+    include-message: always
