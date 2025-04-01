@@ -3,7 +3,12 @@
 This is a sample Spring Boot application that includes REST endpoints.
 
 ## How to run locally
-Make sure you have [Java21](https://www.oracle.com/de/java/technologies/downloads/#java21) and [Docker (preferably desktop)](https://docs.docker.com/desktop/setup/install/windows-install/) installed
+Make sure you have [Java21.0.6-amzn](https://www.oracle.com/de/java/technologies/downloads/#java21) and [Docker (preferably desktop)](https://docs.docker.com/desktop/setup/install/windows-install/) installed
+
+To install java 21.0.6 amzn version follow the
+1. [install sdkman](https://sdkman.io/install/)
+2. `sdk install java 21.0.6-amzn`
+3. `sdk use java 21.0.6-amzn`
 
 Also, make sure, 5432 and 8080 ports are available.
 
